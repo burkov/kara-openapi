@@ -13,10 +13,10 @@ fun <T> tryOrNull(block: () -> T): T? {
     }
 }
 
-private val objectMapper = ObjectMapper().registerKotlinModule()
+val om = ObjectMapper().registerKotlinModule()
 
 object AnySerializer : KClassSerializer<Any> {
-    override fun deserialize(param: String, paramType: KClass<*>): Any = objectMapper.readValue(param, paramType.java)
+    override fun deserialize(param: String, paramType: KClass<*>): Any = om.readValue(param, paramType.java)
     override fun isThisType(testType: KClass<*>) = true
-    override fun serialize(param: Any): String = objectMapper.writeValueAsString(param)
+    override fun serialize(param: Any): String = om.writeValueAsString(param)
 }

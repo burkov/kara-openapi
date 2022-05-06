@@ -1,37 +1,26 @@
-//package com.github.burkov.kara.openpi
-//
-//import io.swagger.v3.core.converter.*
-//import io.swagger.v3.core.jackson.ModelResolver
-//import io.swagger.v3.core.util.Json
-//import io.swagger.v3.oas.models.*
-//import io.swagger.v3.oas.models.media.Content
-//import io.swagger.v3.oas.models.media.MediaType
-//import io.swagger.v3.oas.models.media.Schema
-//import io.swagger.v3.oas.models.responses.ApiResponse
-//import io.swagger.v3.oas.models.responses.ApiResponses
-//import kara.*
-//import kara.internal.*
-//import kotlinx.reflection.boundReceiver
-//import java.lang.reflect.Type
-//import kotlin.reflect.KAnnotatedElement
-//import kotlin.reflect.KFunction
-//import kotlin.reflect.jvm.javaType
-//
-//
-//annotation class OpenApi()
-//
-////@Location("/openapi")
-////@Controller("application/json")
-//object OpenApiController {
-//    @Get("schema")
-//    fun schema(): String {
-//        val schema = OpenAPI().apply {
-//            this.paths = Paths()
-//        }
+package com.github.burkov.kara.openapi
+
+import com.github.burkov.kara.openapi.example.om
+import io.swagger.v3.oas.models.OpenAPI
+import io.swagger.v3.oas.models.Paths
+import kara.Controller
+import kara.Get
+import kara.Location
+
+annotation class OpenApi()
+
+@Location("/openapi")
+@Controller("application/json")
+object OpenApiController {
+    @Get("schema")
+    fun schema(): String {
+        val schema = OpenAPI().apply {
+            this.paths = Paths()
+        }
 //        build(schema)
-//        return JsonUtils.writeValueAsString(schema)
-//    }
-//
+        return om.writeValueAsString(schema)
+    }
+
 //    private val storedSchemas = mutableMapOf<String, Schema<*>>()
 //
 //    fun build(schema: OpenAPI) {
@@ -90,12 +79,12 @@
 //    }
 //
 //    private fun funcHasOpenApiMarker(func: KFunction<*>): Boolean {
-//        return func.annotations.filterIsInstance<OpenApi>().isNotEmpty()
+//        return func.annotations.filterIsInstance<com.github.burkov.kara.openpi.OpenApi>().isNotEmpty()
 //    }
 //
 //    private fun receiverHasOpenApiMarker(func: KFunction<*>): Boolean {
 //        val receiverClass = func.boundReceiver()?.javaClass
-//        return receiverClass?.getAnnotation(OpenApi::class.java) != null
+//        return receiverClass?.getAnnotation(com.github.burkov.kara.openpi.OpenApi::class.java) != null
 //    }
 //
 //    private fun normalizePathParams(path: String): String {
@@ -108,4 +97,4 @@
 //            }
 //        }
 //    }
-//}
+}

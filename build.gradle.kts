@@ -26,6 +26,8 @@ dependencies {
     implementation("kara", "kara-exec", "0.1.27")
     implementation("io.swagger.core.v3:swagger-core:2.2.0")
     implementation("io.swagger.core.v3:swagger-models:2.2.0")
+    implementation("com.github.kittinunf.fuel:fuel:2.3.1")
+    implementation("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
     testImplementation(kotlin("test"))
 }
 
