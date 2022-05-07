@@ -9,19 +9,16 @@ data class Record(
     val id: Int,
     val email: String,
 ) {
-    data class Record(
-        val email: String
-    )
-
+    companion object {
+        data class Record(
+            val email: String
+        )
+    }
 }
-//
-//data class CreateRecordRequest(
-//    val email: String
-//)
 
 @Controller("application/json")
 @Location("/api")
-object Controller {
+object CrudController {
     private var mockSerial = 0
     private val mock = mutableListOf<Record>()
 
@@ -31,19 +28,23 @@ object Controller {
         }
     }
 
+    @OpenApi
+    @Post("/", "*")
+    fun create(@RequestBodyParameter request: Record.Companion.Record): Record {
+        return Record(
+            id = mockSerial++,
+            email = request.email
+        ).also { mock.add(it) }
+    }
+
     @Get("/")
     fun list(): List<Record> {
         return mock
     }
 
-    @OpenApi
-    @Post("/", "*")
-    fun create(@RequestBodyParameter request: Record.Record): Record {
-        error("wtf")
-//        return Record(
-//            id = mockSerial++,
-//            email = request.email
-//        ).also { mock.add(it) }
+    @Put("/:id", "*")
+    fun update(@RequestBodyParameter request: Record): Record {
+        return mock.first()
     }
 
     @Delete("/:id", "*")
