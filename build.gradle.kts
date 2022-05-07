@@ -28,6 +28,7 @@ dependencies {
     implementation("io.swagger.core.v3:swagger-models:2.2.0")
     implementation("com.github.kittinunf.fuel:fuel:2.3.1")
     implementation("com.github.kittinunf.fuel:fuel-jackson:2.3.1")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:1.6.21")
     testImplementation(kotlin("test"))
 }
 

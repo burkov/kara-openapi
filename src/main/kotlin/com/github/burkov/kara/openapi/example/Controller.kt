@@ -1,5 +1,6 @@
 package com.github.burkov.kara.openapi.example
 
+import com.github.burkov.kara.openapi.OpenApi
 import kara.*
 import kara.Controller
 import java.util.UUID
@@ -25,6 +26,7 @@ object Controller {
         }
     }
 
+    @OpenApi
     @Get("/")
     fun list(): List<Record> {
         return mock
