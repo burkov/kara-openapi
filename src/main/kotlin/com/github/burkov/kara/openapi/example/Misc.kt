@@ -1,6 +1,7 @@
 package com.github.burkov.kara.openapi.example
 
 import io.swagger.v3.core.util.Json
+import io.swagger.v3.core.util.Yaml31
 import kotlinx.reflection.serialization.KClassSerializer
 import kotlin.reflect.KClass
 
@@ -13,6 +14,7 @@ fun <T> tryOrNull(block: () -> T): T? {
 }
 
 val om = Json.mapper()
+val ym = Yaml31.mapper()
 
 object AnySerializer : KClassSerializer<Any> {
     override fun deserialize(param: String, paramType: KClass<*>): Any = om.readValue(param, paramType.java)

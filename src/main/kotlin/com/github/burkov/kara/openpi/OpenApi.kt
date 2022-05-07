@@ -1,6 +1,7 @@
 package com.github.burkov.kara.openapi
 
 import com.github.burkov.kara.openapi.example.om
+import com.github.burkov.kara.openapi.example.ym
 import io.swagger.v3.core.converter.ModelConverterContextImpl
 import io.swagger.v3.core.converter.ModelConverters
 import io.swagger.v3.oas.models.*
@@ -50,7 +51,7 @@ object UI : Request({
             <script>
               window.onload = () => {
                 window.ui = SwaggerUIBundle({
-                  url: 'http://localhost:8080/openapi/schema',
+                  url: 'http://localhost:8080/openapi/schema.json',
                   dom_id: '#swagger-ui',
                 });
               };
@@ -65,13 +66,19 @@ object UI : Request({
 @Location("/openapi")
 @Controller("application/json")
 object OpenApiController {
-
-    @Get("schema")
-    fun schema(): String {
-        val schema = OpenAPI().apply {
+    private val schema by lazy {
+        OpenAPI().apply {
             this.paths = Paths()
-        }
-        build(schema)
+        }.also { build(it) }
+    }
+
+    @Get("schema.yaml")
+    fun schemaYaml(): String {
+        return ym.writeValueAsString(schema)
+    }
+
+    @Get("schema.json")
+    fun schemaJson(): String {
         return om.writeValueAsString(schema)
     }
 
