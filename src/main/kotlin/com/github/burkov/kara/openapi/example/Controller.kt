@@ -8,11 +8,16 @@ import java.util.UUID
 data class Record(
     val id: Int,
     val email: String,
-)
+) {
+    data class Record(
+        val email: String
+    )
 
-data class CreateRecordRequest(
-    val email: String
-)
+}
+//
+//data class CreateRecordRequest(
+//    val email: String
+//)
 
 @Controller("application/json")
 @Location("/api")
@@ -26,18 +31,19 @@ object Controller {
         }
     }
 
-    @OpenApi
     @Get("/")
     fun list(): List<Record> {
         return mock
     }
 
+    @OpenApi
     @Post("/", "*")
-    fun create(@RequestBodyParameter request: CreateRecordRequest): Record {
-        return Record(
-            id = mockSerial++,
-            email = request.email
-        ).also { mock.add(it) }
+    fun create(@RequestBodyParameter request: Record.Record): Record {
+        error("wtf")
+//        return Record(
+//            id = mockSerial++,
+//            email = request.email
+//        ).also { mock.add(it) }
     }
 
     @Delete("/:id", "*")

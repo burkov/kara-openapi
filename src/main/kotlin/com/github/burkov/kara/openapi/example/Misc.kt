@@ -1,7 +1,6 @@
 package com.github.burkov.kara.openapi.example
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import io.swagger.v3.core.util.Json
 import kotlinx.reflection.serialization.KClassSerializer
 import kotlin.reflect.KClass
 
@@ -13,7 +12,7 @@ fun <T> tryOrNull(block: () -> T): T? {
     }
 }
 
-val om = ObjectMapper().registerKotlinModule()
+val om = Json.mapper()
 
 object AnySerializer : KClassSerializer<Any> {
     override fun deserialize(param: String, paramType: KClass<*>): Any = om.readValue(param, paramType.java)

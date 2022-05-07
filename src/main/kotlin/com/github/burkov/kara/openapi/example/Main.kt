@@ -17,11 +17,11 @@ fun runServer() {
     Serialization.register(AnySerializer)
     val applicationConfig = ApplicationConfig(InMemoryConfigProvider, ApplicationConfig::class.java.classLoader!!)
     val runner = JettyRunner(applicationConfig)
-    val tid = thread {
-        test(runner)
-    }
+//    val tid = thread {
+//        test(runner)
+//    }
     runner.start()
-    tid.join()
+//    tid.join()
 }
 
 fun test(runner: JettyRunner) {
@@ -29,6 +29,7 @@ fun test(runner: JettyRunner) {
 
     "http://localhost:8080/openapi/schema/".httpGet().responseObject<OpenAPI> { request, response, result ->
         val openapi = result.getOrNull()!!
+        println(om.writerWithDefaultPrettyPrinter().writeValueAsString(openapi))
         runner.stop()
     }
 }
