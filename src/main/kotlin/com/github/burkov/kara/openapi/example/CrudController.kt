@@ -1,49 +1,47 @@
 package com.github.burkov.kara.openapi.example
 
-import com.github.burkov.kara.openapi.OpenApi
+import com.github.burkov.kara.openapi.annotations.OpenApi
 import kara.*
 import kara.Controller
 import java.util.UUID
 
-data class Record(
+data class RecordDto(
     val id: Int,
     val email: String,
-) {
-    companion object {
-        data class Record(
-            val email: String
-        )
-    }
-}
+)
+
+data class CreateRecordDto(
+    val email: String
+)
 
 @Controller("application/json")
 @Location("/api")
 object CrudController {
     private var mockSerial = 0
-    private val mock = mutableListOf<Record>()
+    private val mock = mutableListOf<RecordDto>()
 
     init {
         repeat(5) {
-            mock.add(Record(mockSerial++, "${UUID.randomUUID().toString().substringBefore("-")}@gmail.com"))
+            mock.add(RecordDto(mockSerial++, "${UUID.randomUUID().toString().substringBefore("-")}@gmail.com"))
         }
     }
 
     @OpenApi
     @Post("/", "*")
-    fun create(@RequestBodyParameter request: Record.Companion.Record): Record {
-        return Record(
+    fun create(@RequestBodyParameter request: CreateRecordDto): RecordDto {
+        return RecordDto(
             id = mockSerial++,
             email = request.email
         ).also { mock.add(it) }
     }
 
     @Get("/")
-    fun list(): List<Record> {
+    fun list(): List<RecordDto> {
         return mock
     }
 
     @Put("/:id", "*")
-    fun update(@RequestBodyParameter request: Record): Record {
+    fun update(@RequestBodyParameter request: RecordDto): RecordDto {
         return mock.first()
     }
 

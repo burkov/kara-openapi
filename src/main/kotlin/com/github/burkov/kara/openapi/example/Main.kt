@@ -27,7 +27,7 @@ fun runServer() {
 fun test(runner: JettyRunner) {
     Thread.sleep(1)
 
-    "http://localhost:8080/openapi/schema/".httpGet().responseObject<OpenAPI> { request, response, result ->
+    "http://localhost:8080/openapi/schema.json".httpGet().responseObject<OpenAPI> { request, response, result ->
         val openapi = result.getOrNull()!!
         println(om.writerWithDefaultPrettyPrinter().writeValueAsString(openapi))
         runner.stop()
