@@ -25,22 +25,26 @@ object OpenApiController {
     fun schemaJson(): String = om.writeValueAsString(schema)
 
     private fun build(): OpenAPI {
-        return OpenApiBuilder(SchemaMapper()).apply {
-            RoutesResolver.forEachFunctionalRoute { functionalRoute, descriptor ->
-                path(normalizeRouteParams(descriptor.route)) {
-                    operation(descriptor.httpMethod.toOpenAPIMethod()) {
-                        request {
-                            routeParams = findRouteParameters(functionalRoute.valueParameters, descriptor.route)
-                            queryParams = findQueryParameters(functionalRoute.valueParameters, descriptor.route)
-                            requestBody = findRequestBodyParameter(functionalRoute.valueParameters)
-                        }
-                        response {
-                            returnType = functionalRoute.returnType
-                        }
-                    }
-                }
+        val openapi = OpenApiBuilder.openapi()
+
+        RoutesResolver.forEachFunctionalRoute { functionalRoute, descriptor ->
+            val route = normalizeRouteParams(descriptor.route)
+            val method = descriptor.httpMethod.toOpenAPIMethod()
+            val routeParams = findRouteParameters(functionalRoute.valueParameters, descriptor.route)
+            val queryParams = findQueryParameters(functionalRoute.valueParameters, descriptor.route)
+            val requestBody = findRequestBodyParameter(functionalRoute.valueParameters)
+            val returnType = functionalRoute.returnType
+            val hasNoResponseBody = returnType.isUnitKType()
+
+            OpenApiBuilder.addOperation(openapi, route, method).let { operation ->
+                val name = if (hasNoResponseBody) "204" else "200"
+                OpenApiBuilder.setResponse(operation, name, returnType)
+                OpenApiBuilder.setRequestBody(operation, requestBody)
+                OpenApiBuilder.setRouteParameters(operation, routeParams)
+                OpenApiBuilder.setQueryParameters(operation, queryParams)
             }
-        }.build()
+        }
+        return openapi
     }
 
     private fun findRouteParameters(params: List<KParameter>, route: String): List<KParameter> {
@@ -59,7 +63,8 @@ object OpenApiController {
         return requestBodyParameters.singleOrNull()
     }
 
-    private fun isRequestBodyParameter(p: KParameter): Boolean = p.annotations.filterIsInstance<RequestBodyParameter>().isNotEmpty()
+    private fun isRequestBodyParameter(p: KParameter): Boolean =
+        p.annotations.filterIsInstance<RequestBodyParameter>().isNotEmpty()
 
     private fun HttpMethod.toOpenAPIMethod(): PathItem.HttpMethod = when (this) {
         HttpMethod.GET -> PathItem.HttpMethod.GET

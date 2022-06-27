@@ -15,7 +15,7 @@ data class CreateRecordDto(
 )
 
 @Controller("application/json")
-@Location("/api")
+@Location("/api/emails")
 object CrudController {
     private var mockSerial = 0
     private val mock = mutableListOf<RecordDto>()
