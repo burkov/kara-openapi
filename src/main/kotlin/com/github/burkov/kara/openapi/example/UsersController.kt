@@ -18,7 +18,6 @@ data class UpdateUserDto(
     val name: String?
 )
 
-@OpenApi
 @Controller("application/json")
 @Location("/api/users")
 object UsersController {
@@ -38,6 +37,7 @@ object UsersController {
         ).also { users.add(it) }
     }
 
+    @OpenApi
     @Get("/")
     fun listUsers(): List<UserDto> {
         return users

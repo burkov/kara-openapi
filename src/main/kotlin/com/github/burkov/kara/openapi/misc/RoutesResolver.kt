@@ -33,7 +33,7 @@ object RoutesResolver {
             if (functionalRoute is KFunction<*>) {
                 val boundReceiver = functionalRoute.boundReceiver()
                 val receiverName = boundReceiver?.javaClass?.name
-                val isMarked = boundReceiver?.javaClass?.getAnnotation(OpenApi::class.java) != null
+                val isMarked = isReceiverMarked(boundReceiver) || isFunctionMarked(functionalRoute)
                 if (receiverName != null && isMarked) {
                     val controller = controllers.getOrPut(receiverName) {
                         LocationController(
@@ -48,4 +48,11 @@ object RoutesResolver {
         }
         controllers.values.forEach(block)
     }
+
+    private fun isFunctionMarked(functionalRoute: KAnnotatedElement) =
+        functionalRoute.annotations.filterIsInstance<OpenApi>()
+            .isNotEmpty()
+
+    private fun isReceiverMarked(boundReceiver: Any?) =
+        boundReceiver?.javaClass?.getAnnotation(OpenApi::class.java) != null
 }
