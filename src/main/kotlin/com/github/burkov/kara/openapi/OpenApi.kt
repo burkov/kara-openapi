@@ -1,9 +1,9 @@
 package com.github.burkov.kara.openapi
 
-import com.github.burkov.kara.openapi.example.om
-import com.github.burkov.kara.openapi.example.ym
-import com.github.burkov.kara.openapi.misc.*
-import io.swagger.v3.oas.models.*
+import com.github.burkov.kara.openapi.misc.RoutesResolver
+import io.swagger.v3.core.util.Yaml31
+import io.swagger.v3.oas.models.OpenAPI
+import io.swagger.v3.oas.models.PathItem
 import kara.*
 import kara.internal.ParamRouteComponent
 import kara.internal.StringRouteComponent
@@ -17,12 +17,11 @@ const val applicationJsonMediaType = "application/json"
 @Controller("application/json")
 object OpenApiController {
     private val schema by lazy { build() }
+    private val ym = Yaml31.mapper()
+
 
     @Get("schema.yaml")
     fun schemaYaml(): String = ym.writeValueAsString(schema)
-
-    @Get("schema.json")
-    fun schemaJson(): String = om.writeValueAsString(schema)
 
     private fun build(): OpenAPI {
         val openapi = OpenApiBuilder.openapi()

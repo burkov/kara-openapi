@@ -15,7 +15,7 @@ import kotlin.reflect.KType
 import kotlin.reflect.jvm.javaType
 
 object OpenApiBuilder {
-    val schemaMapper = SchemaMapper()
+    private val schemaMapper = SchemaMapper()
 
     fun openapi(): OpenAPI = OpenAPI().also {
         it.paths = Paths()
@@ -53,20 +53,20 @@ object OpenApiBuilder {
     fun setQueryParameters(operation: Operation, queryParams: List<KParameter>) {
         println("Setting query params")
     }
+
+    private fun makeContent(type: Type): Content {
+        val content = Content()
+        val mediaType = MediaType()
+        mediaType.schema = schemaMapper.schemaRef(type)
+        content.addMediaType(applicationJsonMediaType, mediaType)
+        return content
+    }
 }
 
 fun KType.isUnitKType(): Boolean {
     return this.classifier != Unit::class
 }
 
-
-private fun makeContent(type: Type): Content {
-    return Content().apply {
-        this.addMediaType(applicationJsonMediaType, MediaType().apply {
-//            this.schema = resolveSchemaRef(type)
-        })
-    }
-}
 
 //private val modelConverters = ModelConverters.getInstance()
 //
