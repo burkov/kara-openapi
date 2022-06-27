@@ -20,7 +20,7 @@ data class UpdateEmailDto(
 
 @OpenApi
 @Controller("application/json")
-@Location("/api/Emails")
+@Location("/api/emails")
 object EmailsController {
     private val emails = mutableListOf<EmailDto>()
 

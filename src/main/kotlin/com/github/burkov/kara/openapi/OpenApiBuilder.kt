@@ -47,11 +47,11 @@ object OpenApiBuilder {
     }
 
     fun setRouteParameters(operation: Operation, routeParams: List<KParameter>) {
-        println("Setting route params")
+//        println("Setting route params")
     }
 
     fun setQueryParameters(operation: Operation, queryParams: List<KParameter>) {
-        println("Setting query params")
+//        println("Setting query params")
     }
 
     private fun makeContent(type: Type): Content {

@@ -25,9 +25,9 @@ fun runServer() {
     Serialization.register(AnySerializer)
     val applicationConfig = ApplicationConfig(InMemoryConfigProvider, ApplicationConfig::class.java.classLoader!!)
     val runner = JettyRunner(applicationConfig)
-    val tid = thread { test(runner) }
-    runner.start()
-    tid.join()
+//    thread { test(runner) }.also {
+        runner.start()
+//    }.join()
 }
 
 

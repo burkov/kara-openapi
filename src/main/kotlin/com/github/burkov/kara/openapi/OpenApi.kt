@@ -6,8 +6,10 @@ import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.PathItem
 import kara.*
 import kara.internal.ParamRouteComponent
+import kara.internal.ResourceDescriptor
 import kara.internal.StringRouteComponent
 import kara.internal.toRouteComponents
+import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.valueParameters
 
@@ -26,21 +28,24 @@ object OpenApiController {
     private fun build(): OpenAPI {
         val openapi = OpenApiBuilder.openapi()
 
-        RoutesResolver.forEachFunctionalRoute { functionalRoute, descriptor ->
-            val route = normalizeRouteParams(descriptor.route)
-            val method = descriptor.httpMethod.toOpenAPIMethod()
-            val routeParams = findRouteParameters(functionalRoute.valueParameters, descriptor.route)
-            val queryParams = findQueryParameters(functionalRoute.valueParameters, descriptor.route)
-            val requestBody = findRequestBodyParameter(functionalRoute.valueParameters)
-            val returnType = functionalRoute.returnType
-            val hasNoResponseBody = returnType.isUnitKType()
+        RoutesResolver.forEachController { controller ->
+            println(controller.name)
+            controller.routes.forEach { (functionalRoute, descriptor) ->
+                val route = normalizeRouteParams(descriptor.route)
+                val method = descriptor.httpMethod.toOpenAPIMethod()
+                val routeParams = findRouteParameters(functionalRoute.valueParameters, descriptor.route)
+                val queryParams = findQueryParameters(functionalRoute.valueParameters, descriptor.route)
+                val requestBody = findRequestBodyParameter(functionalRoute.valueParameters)
+                val returnType = functionalRoute.returnType
+                val hasNoResponseBody = returnType.isUnitKType()
 
-            OpenApiBuilder.addOperation(openapi, route, method).let { operation ->
-                val name = if (hasNoResponseBody) "204" else "200"
-                OpenApiBuilder.setResponse(operation, name, returnType)
-                OpenApiBuilder.setRequestBody(operation, requestBody)
-                OpenApiBuilder.setRouteParameters(operation, routeParams)
-                OpenApiBuilder.setQueryParameters(operation, queryParams)
+                OpenApiBuilder.addOperation(openapi, route, method).let { operation ->
+                    val name = if (hasNoResponseBody) "204" else "200"
+                    OpenApiBuilder.setResponse(operation, name, returnType)
+                    OpenApiBuilder.setRequestBody(operation, requestBody)
+                    OpenApiBuilder.setRouteParameters(operation, routeParams)
+                    OpenApiBuilder.setQueryParameters(operation, queryParams)
+                }
             }
         }
         return openapi
