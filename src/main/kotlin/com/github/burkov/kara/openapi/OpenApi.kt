@@ -6,10 +6,8 @@ import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.PathItem
 import kara.*
 import kara.internal.ParamRouteComponent
-import kara.internal.ResourceDescriptor
 import kara.internal.StringRouteComponent
 import kara.internal.toRouteComponents
-import kotlin.reflect.KFunction
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.valueParameters
 
@@ -18,18 +16,24 @@ const val applicationJsonMediaType = "application/json"
 @Location("/openapi")
 @Controller("application/json")
 object OpenApiController {
-    private val schema by lazy { build() }
+    private val schemas by lazy { build() }
     private val ym = Yaml31.mapper()
 
+    @Get("/")
+    fun listAll(): List<String> {
+        return schemas.keys.sorted()
+    }
 
-    @Get("schema.yaml")
-    fun schemaYaml(): String = ym.writeValueAsString(schema)
+    @Get("/:name")
+    fun apiSchema(name: String): String {
+        if (!schemas.containsKey(name)) throw ResultWithCodeException(404, "Not found")
+        return ym.writeValueAsString(schemas[name])
+    }
 
-    private fun build(): OpenAPI {
-        val openapi = OpenApiBuilder.openapi()
-
+    private fun build(): Map<String, OpenAPI> {
+        val result = mutableMapOf<String, OpenAPI>()
         RoutesResolver.forEachController { controller ->
-            println(controller.name)
+            val builder = OpenApiBuilder()
             controller.routes.forEach { (functionalRoute, descriptor) ->
                 val route = normalizeRouteParams(descriptor.route)
                 val method = descriptor.httpMethod.toOpenAPIMethod()
@@ -39,16 +43,17 @@ object OpenApiController {
                 val returnType = functionalRoute.returnType
                 val hasNoResponseBody = returnType.isUnitKType()
 
-                OpenApiBuilder.addOperation(openapi, route, method).let { operation ->
+                builder.addOperation(route, method).let { operation ->
                     val name = if (hasNoResponseBody) "204" else "200"
-                    OpenApiBuilder.setResponse(operation, name, returnType)
-                    OpenApiBuilder.setRequestBody(operation, requestBody)
-                    OpenApiBuilder.setRouteParameters(operation, routeParams)
-                    OpenApiBuilder.setQueryParameters(operation, queryParams)
+                    builder.setResponse(operation, name, returnType)
+                    builder.setRequestBody(operation, requestBody)
+                    builder.setRouteParameters(operation, routeParams)
+                    builder.setQueryParameters(operation, queryParams)
                 }
             }
+            result[controller.name] = builder.build()
         }
-        return openapi
+        return result
     }
 
     private fun findRouteParameters(params: List<KParameter>, route: String): List<KParameter> {

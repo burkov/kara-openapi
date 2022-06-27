@@ -11,7 +11,15 @@ data class LocationController(
     val name: String,
     val self: Any,
     val routes: MutableList<Pair<KFunction<*>, ResourceDescriptor>>
-)
+) {
+    init {
+        require(name.endsWith(SUFFIX)) { "Kara route marked with @OpenApi annotation should end with -Controller suffix" }
+    }
+
+    companion object {
+        private const val SUFFIX = "Controller"
+    }
+}
 
 object RoutesResolver {
     fun forEachController(block: (LocationController) -> Unit) {
@@ -27,7 +35,6 @@ object RoutesResolver {
                 val receiverName = boundReceiver?.javaClass?.name
                 val isMarked = boundReceiver?.javaClass?.getAnnotation(OpenApi::class.java) != null
                 if (receiverName != null && isMarked) {
-                    require(receiverName.endsWith("Controller")) { "Kara route marked with @OpenApi annotation should end with -Controller suffix" }
                     val controller = controllers.getOrPut(receiverName) {
                         LocationController(
                             name = receiverName,

@@ -14,14 +14,15 @@ import kotlin.reflect.KParameter
 import kotlin.reflect.KType
 import kotlin.reflect.jvm.javaType
 
-object OpenApiBuilder {
-    private val schemaMapper = SchemaMapper()
-
-    fun openapi(): OpenAPI = OpenAPI().also {
+class OpenApiBuilder {
+    private val openapi = OpenAPI().also {
         it.paths = Paths()
     }
+    private val schemaMapper = SchemaMapper()
 
-    fun addOperation(openapi: OpenAPI, route: String, method: PathItem.HttpMethod): Operation {
+    fun build() = openapi
+
+    fun addOperation(route: String, method: PathItem.HttpMethod): Operation {
         val operation = Operation().also {
             it.responses = ApiResponses()
         }

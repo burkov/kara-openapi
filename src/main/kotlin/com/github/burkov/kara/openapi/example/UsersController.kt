@@ -21,7 +21,7 @@ data class UpdateUserDto(
 @OpenApi
 @Controller("application/json")
 @Location("/api/users")
-object UserController {
+object UsersController {
     private val users = mutableListOf<UserDto>()
 
     init {
