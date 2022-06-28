@@ -6,13 +6,14 @@ import io.swagger.v3.oas.models.PathItem
 import io.swagger.v3.oas.models.Paths
 import io.swagger.v3.oas.models.media.Content
 import io.swagger.v3.oas.models.media.MediaType
+import io.swagger.v3.oas.models.parameters.Parameter
 import io.swagger.v3.oas.models.parameters.RequestBody
 import io.swagger.v3.oas.models.responses.ApiResponse
 import io.swagger.v3.oas.models.responses.ApiResponses
-import java.lang.reflect.Type
+import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.KType
-import kotlin.reflect.jvm.javaType
+import kotlin.reflect.full.isSubclassOf
 
 class OpenApiBuilder {
     private val openapi = OpenAPI().also {
@@ -20,7 +21,10 @@ class OpenApiBuilder {
     }
     private val schemaMapper = SchemaMapper()
 
-    fun build() = openapi
+    fun build(): OpenAPI {
+        schemaMapper.addSchemas(openapi)
+        return openapi
+    }
 
     fun addOperation(route: String, method: PathItem.HttpMethod): Operation {
         val operation = Operation().also {
@@ -33,9 +37,7 @@ class OpenApiBuilder {
 
     fun setResponse(operation: Operation, name: String, returnType: KType): ApiResponse {
         val apiResponse = operation.responses.getOrPut(name) { ApiResponse() }
-        if (!returnType.isUnitKType()) {
-            apiResponse.content = makeContent(returnType.javaType)
-        }
+        apiResponse.content = makeContent(returnType)
         return apiResponse
     }
 
@@ -43,11 +45,21 @@ class OpenApiBuilder {
         if (requestBody == null) return
         operation.requestBody = RequestBody().apply {
             this.required = !requestBody.type.isMarkedNullable
-            this.content = makeContent(requestBody.type.javaType)
+            this.content = makeContent(requestBody.type)
         }
     }
 
     fun setRouteParameters(operation: Operation, routeParams: List<KParameter>) {
+        routeParams.forEach { routeParameter ->
+            requireNotNull(routeParameter.name) { "Nameless route parameter $routeParameter" }
+            val parameter = Parameter()
+            parameter.`in` = "path"
+            parameter.required = true
+            parameter.name = routeParameter.name
+            parameter.schema = schemaMapper.parameterValueSchema(routeParameter)
+
+            operation.addParametersItem(parameter)
+        }
 //        println("Setting route params")
     }
 
@@ -55,17 +67,26 @@ class OpenApiBuilder {
 //        println("Setting query params")
     }
 
-    private fun makeContent(type: Type): Content {
+    private fun makeContent(type: KType): Content? {
+        if (type.isUnitKType()) return null
         val content = Content()
         val mediaType = MediaType()
-        mediaType.schema = schemaMapper.schemaRef(type)
         content.addMediaType(applicationJsonMediaType, mediaType)
+        mediaType.schema = schemaMapper.schemaRef(type)
         return content
     }
 }
 
 fun KType.isUnitKType(): Boolean {
-    return this.classifier != Unit::class
+    return this.classifier == Unit::class
+}
+
+fun KType.isMap(): Boolean {
+    return ((this.classifier as? KClass<*>)?.isSubclassOf(Map::class)) ?: false
+}
+
+fun KType.isIterable(): Boolean {
+    return ((this.classifier as? KClass<*>)?.isSubclassOf(Iterable::class)) ?: false
 }
 
 

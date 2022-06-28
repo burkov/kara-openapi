@@ -25,10 +25,10 @@ fun runServer() {
     Serialization.register(AnySerializer)
     val applicationConfig = ApplicationConfig(InMemoryConfigProvider, ApplicationConfig::class.java.classLoader!!)
     val runner = JettyRunner(applicationConfig)
-//    thread { test(runner) }.also {
+    thread { test(runner) }.also {
         runner.start()
-//    }.join()
-}
+    }.join()
+    }
 
 
 private object AnySerializer : KClassSerializer<Any> {
@@ -50,9 +50,15 @@ private object InMemoryConfigProvider : ConfigProvider() {
 }
 
 private fun test(runner: JettyRunner) {
-//    Thread.sleep(1)
-    "http://localhost:8080/openapi/schema.yaml".httpGet().responseObject<OpenAPI> { _, _, _ ->
-        runner.stop()
-    }
+//    "http://localhost:8080/openapi/com.github.burkov.kara.openapi.example.EmailsController".httpGet()
+//        .responseString { _, _, b ->
+//            println(b.get())
+//            runner.stop()
+//        }
+    "http://localhost:8080/openapi/com.github.burkov.kara.openapi.example.UsersController".httpGet()
+        .responseString { _, _, b ->
+            println(b.get())
+            runner.stop()
+        }
 }
 

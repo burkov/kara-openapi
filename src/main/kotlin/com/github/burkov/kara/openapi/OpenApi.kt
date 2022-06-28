@@ -49,6 +49,8 @@ object OpenApiController {
                     builder.setRequestBody(operation, requestBody)
                     builder.setRouteParameters(operation, routeParams)
                     builder.setQueryParameters(operation, queryParams)
+                    operation.operationId = functionalRoute.name
+                    operation.tags = listOf(controller.self::class.simpleName)
                 }
             }
             result[controller.name] = builder.build()
