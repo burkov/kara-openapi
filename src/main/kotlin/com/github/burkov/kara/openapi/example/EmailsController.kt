@@ -15,7 +15,7 @@ data class CreateEmailDto(
 )
 
 data class UpdateEmailDto(
-    val email: String
+    val email: String?
 )
 
 @OpenApi
@@ -43,13 +43,17 @@ object EmailsController {
         return emails
     }
 
-//    @Put("/:id", "*")
-//    fun updateEmail(@RequestBodyParameter request: UpdateEmailDto): EmailDto {
-//        return emails.first()
-//    }
-//
-//    @Delete("/:id", "*")
-//    fun deleteEmail(id: Int) {
-//        emails.removeIf { it.id == id }
-//    }
+    @Put("/:id", "*")
+    @OpenApiSomething(400, Error::class, "")
+
+    fun updateEmail(@RequestBodyParameter request: UpdateEmailDto): EmailDto {
+        return emails.first()
+    }
+
+    @Delete("/:id", "*")
+    fun deleteEmail(id: Int) {
+        emails.removeIf { it.id == id }
+    }
+
+    data class Error(val id: Int)
 }
