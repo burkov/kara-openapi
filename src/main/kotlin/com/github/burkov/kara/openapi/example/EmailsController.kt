@@ -43,13 +43,13 @@ object EmailsController {
         return emails
     }
 
-    @Put("/:id", "*")
-    fun updateEmail(@RequestBodyParameter request: UpdateEmailDto): EmailDto {
-        return emails.first()
-    }
-
-    @Delete("/:id", "*")
-    fun deleteEmail(id: Int) {
-        emails.removeIf { it.id == id }
-    }
+//    @Put("/:id", "*")
+//    fun updateEmail(@RequestBodyParameter request: UpdateEmailDto): EmailDto {
+//        return emails.first()
+//    }
+//
+//    @Delete("/:id", "*")
+//    fun deleteEmail(id: Int) {
+//        emails.removeIf { it.id == id }
+//    }
 }

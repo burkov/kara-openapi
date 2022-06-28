@@ -25,10 +25,10 @@ fun runServer() {
     Serialization.register(AnySerializer)
     val applicationConfig = ApplicationConfig(InMemoryConfigProvider, ApplicationConfig::class.java.classLoader!!)
     val runner = JettyRunner(applicationConfig)
-    thread { test(runner) }.also {
+//    thread { test(runner) }.also {
         runner.start()
-    }.join()
-    }
+//    }.join()
+}
 
 
 private object AnySerializer : KClassSerializer<Any> {

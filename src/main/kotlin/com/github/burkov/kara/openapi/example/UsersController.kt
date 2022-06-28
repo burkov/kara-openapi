@@ -43,13 +43,13 @@ object UsersController {
         return users
     }
 
-    @Put("/:id", "*")
-    fun updateUser(@RequestBodyParameter request: UpdateUserDto): UserDto {
-        return users.first()
-    }
+//    @Put("/:id", "*")
+//    fun updateUser(@RequestBodyParameter request: UpdateUserDto): UserDto {
+//        return users.first()
+//    }
 
-    @Delete("/:id", "*")
-    fun deleteUser(id: Int) {
-        users.removeIf { it.id == id }
-    }
+//    @Delete("/:id", "*")
+//    fun deleteUser(id: Int) {
+//        users.removeIf { it.id == id }
+//    }
 }

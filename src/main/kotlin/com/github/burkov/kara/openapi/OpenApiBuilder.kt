@@ -4,6 +4,7 @@ import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.Operation
 import io.swagger.v3.oas.models.PathItem
 import io.swagger.v3.oas.models.Paths
+import io.swagger.v3.oas.models.info.Info
 import io.swagger.v3.oas.models.media.Content
 import io.swagger.v3.oas.models.media.MediaType
 import io.swagger.v3.oas.models.parameters.Parameter
@@ -18,6 +19,9 @@ import kotlin.reflect.full.isSubclassOf
 class OpenApiBuilder {
     private val openapi = OpenAPI().also {
         it.paths = Paths()
+        it.info = Info()
+        it.info.title = "fixme"
+        it.info.version = "v1"
     }
     private val schemaMapper = SchemaMapper()
 
@@ -30,7 +34,8 @@ class OpenApiBuilder {
         val operation = Operation().also {
             it.responses = ApiResponses()
         }
-        val pathItem = openapi.paths.getOrPut(route) { PathItem() }
+        val normalizedRoute = if (route.startsWith("/")) route else "/$route"
+        val pathItem = openapi.paths.getOrPut(normalizedRoute) { PathItem() }
         pathItem.operation(method, operation)
         return operation
     }
@@ -38,6 +43,7 @@ class OpenApiBuilder {
     fun setResponse(operation: Operation, name: String, returnType: KType): ApiResponse {
         val apiResponse = operation.responses.getOrPut(name) { ApiResponse() }
         apiResponse.content = makeContent(returnType)
+        apiResponse.description = "fixme"
         return apiResponse
     }
 
