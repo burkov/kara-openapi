@@ -74,7 +74,14 @@ class OpenApiBuilder(private val title: String) {
     }
 
     fun setQueryParameters(operation: Operation, queryParams: List<KSValueParameter>) {
-//        println("Setting query params")
+        queryParams.forEach { queryParameter ->
+            val parameter = Parameter()
+            parameter.`in` = "query"
+            parameter.required = !queryParameter.type.resolve().isMarkedNullable
+            parameter.name = queryParameter.name!!.getShortName()
+            parameter.schema = schemaMapper.parameterValueSchema(queryParameter)
+            operation.addParametersItem(parameter)
+        }
     }
 
     private fun makeContent(type: KSType): Content? {
@@ -86,34 +93,3 @@ class OpenApiBuilder(private val title: String) {
         return content
     }
 }
-
-fun KType.isUnitKType(): Boolean {
-    return this.classifier == Unit::class
-}
-
-fun KType.isMap(): Boolean {
-    return ((this.classifier as? KClass<*>)?.isSubclassOf(Map::class)) ?: false
-}
-
-fun KType.isIterable(): Boolean {
-    return ((this.classifier as? KClass<*>)?.isSubclassOf(Iterable::class)) ?: false
-}
-
-
-//private val modelConverters = ModelConverters.getInstance()
-//
-//private fun resolveSchemaRef(type: Type): Schema<*> {
-//    val resolvedSchema = modelConverters.readAllAsResolvedSchema(type)
-//    resolvedSchema.schema.name = type.typeName.substringAfter("openapi.")
-//    if (resolvedSchema == null) {
-//        print("WTF")
-//        error("WTF")
-////            ModelResolver(om).resolve(AnnotatedType().type(type), context, null)
-////            resolved = OpenApiController.modelConverters().readAllAsResolvedSchema(type)
-//    }
-//    for (schema in resolvedSchema.referencedSchemas.values) {
-//        println("RESOLVED: ${schema.name}")
-////            storedSchemas[schema.name] = schema
-//    }
-//    return Schema<Any>().`$ref`(resolvedSchema.schema.name)
-//}

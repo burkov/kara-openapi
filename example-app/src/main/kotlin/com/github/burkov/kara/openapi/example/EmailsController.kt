@@ -41,7 +41,7 @@ object EmailsController {
 
     @OpenApi
     @Get("/")
-    fun listEmails(): List<EmailDto> {
+    fun listEmails(limit: Int?, offset: Int): List<EmailDto> {
         return emails
     }
 
