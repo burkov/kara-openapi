@@ -30,6 +30,7 @@ object EmailsController {
         }
     }
 
+    @OpenApi
     @Post("/", "*")
     fun createEmail(@RequestBodyParameter request: CreateEmailDto): EmailDto {
         return EmailDto(
@@ -38,14 +39,13 @@ object EmailsController {
         ).also { emails.add(it) }
     }
 
+    @OpenApi
     @Get("/")
     fun listEmails(): List<EmailDto> {
         return emails
     }
 
     @Put("/:id", "*")
-    @OpenApiSomething(400, Error::class, "")
-
     fun updateEmail(@RequestBodyParameter request: UpdateEmailDto): EmailDto {
         return emails.first()
     }
@@ -54,6 +54,4 @@ object EmailsController {
     fun deleteEmail(id: Int) {
         emails.removeIf { it.id == id }
     }
-
-    data class Error(val id: Int)
 }

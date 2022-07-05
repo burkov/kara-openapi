@@ -4,20 +4,19 @@ package com.github.burkov.kara.openapi.example
 
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.github.kittinunf.fuel.httpGet
-import com.github.kittinunf.fuel.jackson.responseObject
 import io.swagger.v3.core.util.Json
-import io.swagger.v3.oas.models.OpenAPI
 import kara.ApplicationConfig
 import kara.server.JettyRunner
 import kotlinx.reflection.Serialization
 import kotlinx.reflection.serialization.KClassSerializer
 import tanvd.konfy.provider.ConfigProvider
 import java.lang.reflect.Type
-import kotlin.concurrent.thread
 import kotlin.reflect.KClass
 
 fun main() {
-    runServer()
+//    runServer()
+
+    println("hello")
 }
 
 

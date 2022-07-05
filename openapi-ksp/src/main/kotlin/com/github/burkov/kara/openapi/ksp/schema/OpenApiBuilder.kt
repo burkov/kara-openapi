@@ -1,4 +1,4 @@
-package com.github.burkov.kara.openapi
+package com.github.burkov.kara.openapi.ksp.schema
 
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.Operation
@@ -15,6 +15,8 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubclassOf
+
+const val applicationJsonMediaType = "application/json"
 
 class OpenApiBuilder {
     private val openapi = OpenAPI().also {

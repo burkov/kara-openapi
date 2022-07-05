@@ -1,28 +1,18 @@
 package com.github.burkov.kara.openapi
 
-import com.github.burkov.kara.openapi.misc.RoutesResolver
 import io.swagger.v3.core.util.Yaml31
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.PathItem
 import kara.*
 import kara.internal.ParamRouteComponent
-import kara.internal.StringRouteComponent
 import kara.internal.toRouteComponents
 import kotlin.reflect.KParameter
-import kotlin.reflect.full.valueParameters
-
-const val applicationJsonMediaType = "application/json"
 
 @Location("/openapi")
 @Controller("application/json")
 object OpenApiController {
     private val schemas by lazy { build() }
     private val ym = Yaml31.mapper()
-
-    @Get("/")
-    fun listAll(): List<String> {
-        return schemas.keys.sorted()
-    }
 
     @Get("/:name")
     fun apiSchema(name: String): String {
@@ -32,29 +22,27 @@ object OpenApiController {
 
     private fun build(): Map<String, OpenAPI> {
         val result = mutableMapOf<String, OpenAPI>()
-        RoutesResolver.forEachController { controller ->
-            val builder = OpenApiBuilder()
-            controller.routes.forEach { (functionalRoute, descriptor) ->
-                val route = normalizeRouteParams(descriptor.route)
-                val method = descriptor.httpMethod.toOpenAPIMethod()
-                val routeParams = findRouteParameters(functionalRoute.valueParameters, descriptor.route)
-                val queryParams = findQueryParameters(functionalRoute.valueParameters, descriptor.route)
-                val requestBody = findRequestBodyParameter(functionalRoute.valueParameters)
-                val returnType = functionalRoute.returnType
-                val hasNoResponseBody = returnType.isUnitKType()
-
-                builder.addOperation(route, method).let { operation ->
-                    val name = if (hasNoResponseBody) "204" else "200"
-                    builder.setResponse(operation, name, returnType)
-                    builder.setRequestBody(operation, requestBody)
-                    builder.setRouteParameters(operation, routeParams)
-                    builder.setQueryParameters(operation, queryParams)
-                    operation.operationId = functionalRoute.name
-                    operation.tags = listOf(controller.self::class.simpleName)
-                }
-            }
-            result[controller.name] = builder.build()
-        }
+//        RoutesResolver.forEachController { controller ->
+//            controller.routes.forEach { (functionalRoute, descriptor) ->
+//
+//                val routeParams = findRouteParameters(functionalRoute.valueParameters, descriptor.route)
+//                val queryParams = findQueryParameters(functionalRoute.valueParameters, descriptor.route)
+//                val requestBody = findRequestBodyParameter(functionalRoute.valueParameters)
+//                val returnType = functionalRoute.returnType
+//                val hasNoResponseBody = returnType.isUnitKType()
+//
+//                builder.addOperation(route, method).let { operation ->
+//                    val name = if (hasNoResponseBody) "204" else "200"
+//                    builder.setResponse(operation, name, returnType)
+//                    builder.setRequestBody(operation, requestBody)
+//                    builder.setRouteParameters(operation, routeParams)
+//                    builder.setQueryParameters(operation, queryParams)
+//                    operation.operationId = functionalRoute.name
+//                    operation.tags = listOf(controller.self::class.simpleName)
+//                }
+//            }
+//            result[controller.name] = builder.build()
+//        }
         return result
     }
 
@@ -90,14 +78,5 @@ object OpenApiController {
         return path.toRouteComponents().filterIsInstance<ParamRouteComponent>().map { it.name }
     }
 
-    private fun normalizeRouteParams(path: String): String {
-        val components = path.toRouteComponents()
-        return components.joinToString("/") {
-            when (it) {
-                is ParamRouteComponent -> "{${it.name}}"
-                is StringRouteComponent -> it.componentText
-                else -> error("${it::class} route component is not supported")
-            }
-        }
-    }
+
 }

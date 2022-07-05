@@ -1,4 +1,4 @@
-package com.github.burkov.kara.openapi
+package com.github.burkov.kara.openapi.ksp.schema
 
 import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
