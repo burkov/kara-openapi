@@ -6,8 +6,8 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "codegen:users": "openapi-generator-cli generate -i http://127.0.0.1:8080/openapi/com.github.burkov.kara.openapi.example.UsersController -g typescript-axios -o src/api/users",
-    "codegen:emails": "openapi-generator-cli generate -i http://127.0.0.1:8080/openapi/com.github.burkov.kara.openapi.example.EmailsController -g typescript-axios -o src/api/emails",
+    "codegen:users": "openapi-generator-cli generate -i ../example-app/openapi/com/github/burkov/kara/openapi/example/UsersController.yaml -g typescript-axios -o src/api/users",
+    "codegen:emails": "openapi-generator-cli generate -i ../example-app/openapi/com/github/burkov/kara/openapi/example/EmailsController.yaml -g typescript-axios -o src/api/emails",
     "codegen": "yarn codegen:users && yarn codegen:emails"
   },
   "devDependencies": {
