@@ -10,30 +10,26 @@ import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
-import com.google.devtools.ksp.symbol.KSAnnotated
-import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.google.devtools.ksp.symbol.KSNode
+import com.google.devtools.ksp.symbol.*
 import kara.Location
 
 
 data class KaraLocationController(
-    val name: String,
+    val name: KSName,
     val pathPrefix: String,
     val routes: MutableSet<KSFunctionDeclaration> = mutableSetOf()
 )
 
 lateinit var kspLogger: KSPLogger
 
-class OpenApiProcessor : SymbolProcessor {
+class OpenApiProcessor(private val outputDir: String) : SymbolProcessor {
     override fun process(resolver: Resolver): List<KSAnnotated> {
-        val controllers = mutableMapOf<String, KaraLocationController>()
+        val controllers = mutableMapOf<KSName, KaraLocationController>()
         val symbols = resolver.getSymbolsWithAnnotation(OpenApi::class.qualifiedName!!)
-
 
         fun validateAndGetLocationController(symbol: KSNode?): KaraLocationController {
             validateController(symbol)
-            val name = controllerName(symbol as KSClassDeclaration)
+            val name = (symbol as KSClassDeclaration).qualifiedName!!
             return controllers.getOrPut(name) {
                 KaraLocationController(
                     name = name,
@@ -61,14 +57,13 @@ class OpenApiProcessor : SymbolProcessor {
                 }
             }
         }
-        SchemaGenerator.process(controllers.values)
+        SchemaGenerator.process(controllers.values, outputDir)
         return emptyList()
     }
 
 
     companion object {
         private const val CONTROLLER_SUFFIX = "Controller"
-        private fun controllerName(symbol: KSClassDeclaration): String = symbol.qualifiedName!!.asString()
         private fun controllerPathPrefix(symbol: KSClassDeclaration): String {
             return symbol.getAnnotationsByType(Location::class).single().path
         }
@@ -88,7 +83,6 @@ class OpenApiProcessor : SymbolProcessor {
                 symbol.getAnnotationsByType(Location::class).firstOrNull() == null ->
                     kspLogger.error("Only @Location controller should be annotated with @OpenApi (${symbol.qualifiedName})")
             }
-
         }
     }
 }

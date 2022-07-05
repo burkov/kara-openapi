@@ -7,6 +7,8 @@ import com.google.devtools.ksp.processing.SymbolProcessorProvider
 class OpenApiProcessorProvider : SymbolProcessorProvider {
     override fun create(environment: SymbolProcessorEnvironment): SymbolProcessor {
         kspLogger = environment.logger
-        return OpenApiProcessor()
+        val outputDir = environment.options["out"]
+        requireNotNull(outputDir) { "please specify openapi output directory" }
+        return OpenApiProcessor(outputDir)
     }
 }

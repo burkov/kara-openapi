@@ -46,7 +46,7 @@ object EmailsController {
     }
 
     @Put("/:id", "*")
-    fun updateEmail(@RequestBodyParameter request: UpdateEmailDto): EmailDto {
+    fun updateEmail(id: Int, @RequestBodyParameter request: UpdateEmailDto): EmailDto {
         return emails.first()
     }
 

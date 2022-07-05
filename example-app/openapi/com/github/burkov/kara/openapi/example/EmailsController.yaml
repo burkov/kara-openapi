@@ -1,0 +1,83 @@
+openapi: 3.0.1
+info:
+  title: fixme
+  version: v1
+paths:
+  /api/emails:
+    get:
+      tags:
+      - EmailsController
+      operationId: listEmails
+      responses:
+        "200":
+          description: fixme
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/List'
+    post:
+      tags:
+      - EmailsController
+      operationId: createEmail
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateEmailDto'
+        required: true
+      responses:
+        "200":
+          description: fixme
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailDto'
+  /api/emails/{id}:
+    put:
+      tags:
+      - EmailsController
+      operationId: updateEmail
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateEmailDto'
+        required: true
+      responses:
+        "200":
+          description: fixme
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmailDto'
+    delete:
+      tags:
+      - EmailsController
+      operationId: deleteEmail
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "204":
+          description: fixme
+components:
+  schemas:
+    EmailDto:
+      type: object
+    CreateEmailDto:
+      type: object
+    List:
+      type: object
+    UpdateEmailDto:
+      type: object

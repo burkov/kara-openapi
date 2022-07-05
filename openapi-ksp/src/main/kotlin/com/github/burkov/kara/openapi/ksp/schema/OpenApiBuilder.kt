@@ -1,5 +1,8 @@
 package com.github.burkov.kara.openapi.ksp.schema
 
+import com.github.burkov.kara.openapi.ksp.schema.SchemaGenerator.isUnitType
+import com.google.devtools.ksp.symbol.KSType
+import com.google.devtools.ksp.symbol.KSValueParameter
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.Operation
 import io.swagger.v3.oas.models.PathItem
@@ -12,7 +15,6 @@ import io.swagger.v3.oas.models.parameters.RequestBody
 import io.swagger.v3.oas.models.responses.ApiResponse
 import io.swagger.v3.oas.models.responses.ApiResponses
 import kotlin.reflect.KClass
-import kotlin.reflect.KParameter
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubclassOf
 
@@ -42,41 +44,41 @@ class OpenApiBuilder {
         return operation
     }
 
-    fun setResponse(operation: Operation, name: String, returnType: KType): ApiResponse {
+    fun setResponse(operation: Operation, name: String, returnType: KSType): ApiResponse {
         val apiResponse = operation.responses.getOrPut(name) { ApiResponse() }
         apiResponse.content = makeContent(returnType)
         apiResponse.description = "fixme"
         return apiResponse
     }
 
-    fun setRequestBody(operation: Operation, requestBody: KParameter?) {
+    fun setRequestBody(operation: Operation, requestBody: KSValueParameter?) {
         if (requestBody == null) return
+        val type = requestBody.type.resolve()
+
         operation.requestBody = RequestBody().apply {
-            this.required = !requestBody.type.isMarkedNullable
-            this.content = makeContent(requestBody.type)
+            this.required = !type.isMarkedNullable
+            this.content = makeContent(type)
         }
     }
 
-    fun setRouteParameters(operation: Operation, routeParams: List<KParameter>) {
+    fun setRouteParameters(operation: Operation, routeParams: List<KSValueParameter>) {
         routeParams.forEach { routeParameter ->
             requireNotNull(routeParameter.name) { "Nameless route parameter $routeParameter" }
             val parameter = Parameter()
             parameter.`in` = "path"
             parameter.required = true
-            parameter.name = routeParameter.name
+            parameter.name = routeParameter.name!!.getShortName()
             parameter.schema = schemaMapper.parameterValueSchema(routeParameter)
-
             operation.addParametersItem(parameter)
         }
-//        println("Setting route params")
     }
 
-    fun setQueryParameters(operation: Operation, queryParams: List<KParameter>) {
+    fun setQueryParameters(operation: Operation, queryParams: List<KSValueParameter>) {
 //        println("Setting query params")
     }
 
-    private fun makeContent(type: KType): Content? {
-        if (type.isUnitKType()) return null
+    private fun makeContent(type: KSType): Content? {
+        if (type.declaration.isUnitType()) return null
         val content = Content()
         val mediaType = MediaType()
         content.addMediaType(applicationJsonMediaType, mediaType)

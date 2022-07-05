@@ -1,10 +1,12 @@
+import java.io.File
+
 plugins {
     kotlin("jvm")
     id("com.google.devtools.ksp")
 }
 
 ksp {
-    arg("app", "example-app")
+    arg("out", File(projectDir, "openapi").absolutePath)
 }
 
 repositories {
