@@ -7,6 +7,7 @@ import com.github.burkov.kara.openapi.ksp.kara.KaraAnnotations
 import com.github.burkov.kara.openapi.ksp.schema.SchemaGenerator
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.getAnnotationsByType
+import com.google.devtools.ksp.processing.KSBuiltIns
 import com.google.devtools.ksp.processing.KSPLogger
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessor
@@ -21,9 +22,11 @@ data class KaraLocationController(
 )
 
 lateinit var kspLogger: KSPLogger
+lateinit var kspBuiltIns: KSBuiltIns
 
 class OpenApiProcessor(private val outputDir: String) : SymbolProcessor {
     override fun process(resolver: Resolver): List<KSAnnotated> {
+        kspBuiltIns = resolver.builtIns
         val controllers = mutableMapOf<KSName, KaraLocationController>()
         val symbols = resolver.getSymbolsWithAnnotation(OpenApi::class.qualifiedName!!)
 

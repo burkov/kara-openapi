@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
-  title: fixme
-  version: v1
+  title: EmailsController OpenApi specification
+  version: 0.0.1
 paths:
   /api/emails:
     get:
@@ -10,11 +10,13 @@ paths:
       operationId: listEmails
       responses:
         "200":
-          description: fixme
+          description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/List'
+                type: array
+                items:
+                  $ref: '#/components/schemas/EmailDto'
     post:
       tags:
       - EmailsController
@@ -27,7 +29,7 @@ paths:
         required: true
       responses:
         "200":
-          description: fixme
+          description: OK
           content:
             application/json:
               schema:
@@ -52,7 +54,7 @@ paths:
         required: true
       responses:
         "200":
-          description: fixme
+          description: OK
           content:
             application/json:
               schema:
@@ -70,14 +72,12 @@ paths:
           format: int32
       responses:
         "204":
-          description: fixme
+          description: OK
 components:
   schemas:
     EmailDto:
       type: object
     CreateEmailDto:
-      type: object
-    List:
       type: object
     UpdateEmailDto:
       type: object

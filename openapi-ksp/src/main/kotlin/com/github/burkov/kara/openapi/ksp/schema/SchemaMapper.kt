@@ -1,5 +1,11 @@
 package com.github.burkov.kara.openapi.ksp.schema
 
+import com.github.burkov.kara.openapi.ksp.kspBuiltIns
+import com.github.burkov.kara.openapi.ksp.kspLogger
+import com.github.burkov.kara.openapi.ksp.schema.SchemaGenerator.isListLike
+import com.github.burkov.kara.openapi.ksp.schema.SchemaGenerator.isMapLike
+import com.github.burkov.kara.openapi.ksp.schema.SchemaGenerator.isUnitType
+import com.google.devtools.ksp.processing.KSBuiltIns
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSValueParameter
 import io.swagger.v3.oas.models.Components
@@ -49,15 +55,15 @@ class SchemaMapper {
     fun schemaRef(type: KSType): Schema<Any> {
         val schema = Schema<Any>()
         when {
-//            type.isIterable() -> {
-//                val genericType = type.arguments.singleOrNull()?.type
-//                requireNotNull(genericType) { "failed to detect generic type of list" }
-//                schema.addType("array")
-//                schema.items = Schema<Any>().apply {
-//                    this.`$ref` = resolvedRef(genericType)
-//                }
-//            }
-//            type.isMap() -> schema.addType("object")
+            type.declaration.isListLike() -> {
+                val genericType = type.arguments.singleOrNull()?.type?.resolve()
+                requireNotNull(genericType) { "failed to detect generic type of list" }
+                schema.addType("array")
+                schema.items = Schema<Any>().apply {
+                    this.`$ref` = resolvedRef(genericType)
+                }
+            }
+            type.declaration.isMapLike() -> schema.addType("object")
             else -> schema.`$ref` = resolvedRef(type)
         }
         return schema

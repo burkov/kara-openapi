@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
-  title: fixme
-  version: v1
+  title: UsersController OpenApi specification
+  version: 0.0.1
 paths:
   /api/users:
     get:
@@ -10,12 +10,14 @@ paths:
       operationId: listUsers
       responses:
         "200":
-          description: fixme
+          description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/List'
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserDto'
 components:
   schemas:
-    List:
+    UserDto:
       type: object

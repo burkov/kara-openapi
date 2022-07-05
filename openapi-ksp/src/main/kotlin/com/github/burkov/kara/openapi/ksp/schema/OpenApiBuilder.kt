@@ -20,12 +20,12 @@ import kotlin.reflect.full.isSubclassOf
 
 const val applicationJsonMediaType = "application/json"
 
-class OpenApiBuilder {
+class OpenApiBuilder(private val title: String) {
     private val openapi = OpenAPI().also {
         it.paths = Paths()
         it.info = Info()
-        it.info.title = "fixme"
-        it.info.version = "v1"
+        it.info.title = title
+        it.info.version = "0.0.1"
     }
     private val schemaMapper = SchemaMapper()
 
@@ -47,7 +47,7 @@ class OpenApiBuilder {
     fun setResponse(operation: Operation, name: String, returnType: KSType): ApiResponse {
         val apiResponse = operation.responses.getOrPut(name) { ApiResponse() }
         apiResponse.content = makeContent(returnType)
-        apiResponse.description = "fixme"
+        apiResponse.description = "OK"
         return apiResponse
     }
 

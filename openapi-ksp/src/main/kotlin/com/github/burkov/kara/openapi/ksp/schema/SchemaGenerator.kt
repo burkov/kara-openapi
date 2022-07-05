@@ -19,7 +19,6 @@ import kara.internal.ParamRouteComponent
 import kara.internal.StringRouteComponent
 import kara.internal.toRouteComponents
 import java.io.File
-import kotlin.reflect.KParameter
 
 object SchemaGenerator {
     private val ym = Yaml31.mapper()
@@ -27,7 +26,7 @@ object SchemaGenerator {
 
     fun process(controllers: Iterable<KaraLocationController>, outputDir: String) {
         controllers.forEach { controller ->
-            val builder = OpenApiBuilder()
+            val builder = OpenApiBuilder("${controller.name.getShortName()} OpenApi specification")
             controller.routes.forEach { functionalRoute ->
                 val route = normalizeRouteParams(functionalRoute, controller)
                 val method = getFunctionalRouteMethod(functionalRoute)
@@ -36,7 +35,7 @@ object SchemaGenerator {
                 val requestBody = findRequestBodyParameter(functionalRoute.parameters)
                 val returnType = functionalRoute.returnType!!.resolve()
                 val hasNoResponseBody = returnType.declaration.isUnitType()
-//
+
                 builder.addOperation(route, method).let { operation ->
                     val name = if (hasNoResponseBody) "204" else "200"
                     builder.setResponse(operation, name, returnType)
@@ -95,10 +94,6 @@ object SchemaGenerator {
         return requestBodyParameters.singleOrNull()
     }
 
-    private fun isRequestBodyParameter(p: KParameter): Boolean =
-        p.annotations.filterIsInstance<RequestBodyParameter>().isNotEmpty()
-
-
     private fun routeParamNames(path: String): List<String> {
         return Regex("\\{([^\\}]*)\\}").findAll(path).map { it.groupValues[1] }.toList()
     }
@@ -117,4 +112,11 @@ object SchemaGenerator {
     }
 
     fun KSDeclaration.isUnitType(): Boolean = this.qualifiedName?.asString() == "kotlin.Unit"
+
+    //FIXME: don't use names
+    fun KSDeclaration.isListLike(): Boolean =
+        this.qualifiedName?.asString() in listOf("kotlin.collections.List", "kotlin.collections.Set")
+
+    //FIXME don't use names
+    fun KSDeclaration.isMapLike(): Boolean = this.qualifiedName?.asString() in listOf("kotlin.collections.Map")
 }
