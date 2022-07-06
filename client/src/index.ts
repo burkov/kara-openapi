@@ -6,8 +6,7 @@ const main = async () => {
     const usersApi = new UsersControllerApi()
 
 
-    await emailsApi.createEmail({});
-    await emailsApi.listEmails();
+    await emailsApi.updateEmail(1, {e})
 }
 
 main().catch(console.error)

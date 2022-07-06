@@ -21,6 +21,51 @@ import { DUMMY_BASE_URL, assertParamExists, setApiKeyToObject, setBasicAuthToObj
 // @ts-ignore
 import { BASE_PATH, COLLECTION_FORMATS, RequestArgs, BaseAPI, RequiredError } from './base';
 
+/**
+ * 
+ * @export
+ * @interface CreateEmailDto
+ */
+export interface CreateEmailDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof CreateEmailDto
+     */
+    'email': string;
+}
+/**
+ * 
+ * @export
+ * @interface EmailDto
+ */
+export interface EmailDto {
+    /**
+     * 
+     * @type {number}
+     * @memberof EmailDto
+     */
+    'id': number;
+    /**
+     * 
+     * @type {string}
+     * @memberof EmailDto
+     */
+    'email': string;
+}
+/**
+ * 
+ * @export
+ * @interface UpdateEmailDto
+ */
+export interface UpdateEmailDto {
+    /**
+     * 
+     * @type {string}
+     * @memberof UpdateEmailDto
+     */
+    'email'?: string;
+}
 
 /**
  * EmailsControllerApi - axios parameter creator
@@ -30,13 +75,13 @@ export const EmailsControllerApiAxiosParamCreator = function (configuration?: Co
     return {
         /**
          * 
-         * @param {object} body 
+         * @param {CreateEmailDto} createEmailDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createEmail: async (body: object, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
-            // verify required parameter 'body' is not null or undefined
-            assertParamExists('createEmail', 'body', body)
+        createEmail: async (createEmailDto: CreateEmailDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'createEmailDto' is not null or undefined
+            assertParamExists('createEmail', 'createEmailDto', createEmailDto)
             const localVarPath = `/api/emails`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -56,7 +101,7 @@ export const EmailsControllerApiAxiosParamCreator = function (configuration?: Co
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(createEmailDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -98,10 +143,14 @@ export const EmailsControllerApiAxiosParamCreator = function (configuration?: Co
         },
         /**
          * 
+         * @param {number} offset 
+         * @param {number} [limit] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listEmails: async (options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        listEmails: async (offset: number, limit?: number, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+            // verify required parameter 'offset' is not null or undefined
+            assertParamExists('listEmails', 'offset', offset)
             const localVarPath = `/api/emails`;
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
             const localVarUrlObj = new URL(localVarPath, DUMMY_BASE_URL);
@@ -113,6 +162,14 @@ export const EmailsControllerApiAxiosParamCreator = function (configuration?: Co
             const localVarRequestOptions = { method: 'GET', ...baseOptions, ...options};
             const localVarHeaderParameter = {} as any;
             const localVarQueryParameter = {} as any;
+
+            if (limit !== undefined) {
+                localVarQueryParameter['limit'] = limit;
+            }
+
+            if (offset !== undefined) {
+                localVarQueryParameter['offset'] = offset;
+            }
 
 
     
@@ -128,15 +185,15 @@ export const EmailsControllerApiAxiosParamCreator = function (configuration?: Co
         /**
          * 
          * @param {number} id 
-         * @param {object} body 
+         * @param {UpdateEmailDto} updateEmailDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateEmail: async (id: number, body: object, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
+        updateEmail: async (id: number, updateEmailDto: UpdateEmailDto, options: AxiosRequestConfig = {}): Promise<RequestArgs> => {
             // verify required parameter 'id' is not null or undefined
             assertParamExists('updateEmail', 'id', id)
-            // verify required parameter 'body' is not null or undefined
-            assertParamExists('updateEmail', 'body', body)
+            // verify required parameter 'updateEmailDto' is not null or undefined
+            assertParamExists('updateEmail', 'updateEmailDto', updateEmailDto)
             const localVarPath = `/api/emails/{id}`
                 .replace(`{${"id"}}`, encodeURIComponent(String(id)));
             // use dummy base URL string because the URL constructor only accepts absolute URLs.
@@ -157,7 +214,7 @@ export const EmailsControllerApiAxiosParamCreator = function (configuration?: Co
             setSearchParams(localVarUrlObj, localVarQueryParameter);
             let headersFromBaseOptions = baseOptions && baseOptions.headers ? baseOptions.headers : {};
             localVarRequestOptions.headers = {...localVarHeaderParameter, ...headersFromBaseOptions, ...options.headers};
-            localVarRequestOptions.data = serializeDataIfNeeded(body, localVarRequestOptions, configuration)
+            localVarRequestOptions.data = serializeDataIfNeeded(updateEmailDto, localVarRequestOptions, configuration)
 
             return {
                 url: toPathString(localVarUrlObj),
@@ -176,12 +233,12 @@ export const EmailsControllerApiFp = function(configuration?: Configuration) {
     return {
         /**
          * 
-         * @param {object} body 
+         * @param {CreateEmailDto} createEmailDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async createEmail(body: object, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<object>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.createEmail(body, options);
+        async createEmail(createEmailDto: CreateEmailDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EmailDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.createEmail(createEmailDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
@@ -196,22 +253,24 @@ export const EmailsControllerApiFp = function(configuration?: Configuration) {
         },
         /**
          * 
+         * @param {number} offset 
+         * @param {number} [limit] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async listEmails(options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<object>>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.listEmails(options);
+        async listEmails(offset: number, limit?: number, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<Array<EmailDto>>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.listEmails(offset, limit, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
         /**
          * 
          * @param {number} id 
-         * @param {object} body 
+         * @param {UpdateEmailDto} updateEmailDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        async updateEmail(id: number, body: object, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<object>> {
-            const localVarAxiosArgs = await localVarAxiosParamCreator.updateEmail(id, body, options);
+        async updateEmail(id: number, updateEmailDto: UpdateEmailDto, options?: AxiosRequestConfig): Promise<(axios?: AxiosInstance, basePath?: string) => AxiosPromise<EmailDto>> {
+            const localVarAxiosArgs = await localVarAxiosParamCreator.updateEmail(id, updateEmailDto, options);
             return createRequestFunction(localVarAxiosArgs, globalAxios, BASE_PATH, configuration);
         },
     }
@@ -226,12 +285,12 @@ export const EmailsControllerApiFactory = function (configuration?: Configuratio
     return {
         /**
          * 
-         * @param {object} body 
+         * @param {CreateEmailDto} createEmailDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        createEmail(body: object, options?: any): AxiosPromise<object> {
-            return localVarFp.createEmail(body, options).then((request) => request(axios, basePath));
+        createEmail(createEmailDto: CreateEmailDto, options?: any): AxiosPromise<EmailDto> {
+            return localVarFp.createEmail(createEmailDto, options).then((request) => request(axios, basePath));
         },
         /**
          * 
@@ -244,21 +303,23 @@ export const EmailsControllerApiFactory = function (configuration?: Configuratio
         },
         /**
          * 
+         * @param {number} offset 
+         * @param {number} [limit] 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        listEmails(options?: any): AxiosPromise<Array<object>> {
-            return localVarFp.listEmails(options).then((request) => request(axios, basePath));
+        listEmails(offset: number, limit?: number, options?: any): AxiosPromise<Array<EmailDto>> {
+            return localVarFp.listEmails(offset, limit, options).then((request) => request(axios, basePath));
         },
         /**
          * 
          * @param {number} id 
-         * @param {object} body 
+         * @param {UpdateEmailDto} updateEmailDto 
          * @param {*} [options] Override http request option.
          * @throws {RequiredError}
          */
-        updateEmail(id: number, body: object, options?: any): AxiosPromise<object> {
-            return localVarFp.updateEmail(id, body, options).then((request) => request(axios, basePath));
+        updateEmail(id: number, updateEmailDto: UpdateEmailDto, options?: any): AxiosPromise<EmailDto> {
+            return localVarFp.updateEmail(id, updateEmailDto, options).then((request) => request(axios, basePath));
         },
     };
 };
@@ -272,13 +333,13 @@ export const EmailsControllerApiFactory = function (configuration?: Configuratio
 export class EmailsControllerApi extends BaseAPI {
     /**
      * 
-     * @param {object} body 
+     * @param {CreateEmailDto} createEmailDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof EmailsControllerApi
      */
-    public createEmail(body: object, options?: AxiosRequestConfig) {
-        return EmailsControllerApiFp(this.configuration).createEmail(body, options).then((request) => request(this.axios, this.basePath));
+    public createEmail(createEmailDto: CreateEmailDto, options?: AxiosRequestConfig) {
+        return EmailsControllerApiFp(this.configuration).createEmail(createEmailDto, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
@@ -294,24 +355,26 @@ export class EmailsControllerApi extends BaseAPI {
 
     /**
      * 
+     * @param {number} offset 
+     * @param {number} [limit] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof EmailsControllerApi
      */
-    public listEmails(options?: AxiosRequestConfig) {
-        return EmailsControllerApiFp(this.configuration).listEmails(options).then((request) => request(this.axios, this.basePath));
+    public listEmails(offset: number, limit?: number, options?: AxiosRequestConfig) {
+        return EmailsControllerApiFp(this.configuration).listEmails(offset, limit, options).then((request) => request(this.axios, this.basePath));
     }
 
     /**
      * 
      * @param {number} id 
-     * @param {object} body 
+     * @param {UpdateEmailDto} updateEmailDto 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof EmailsControllerApi
      */
-    public updateEmail(id: number, body: object, options?: AxiosRequestConfig) {
-        return EmailsControllerApiFp(this.configuration).updateEmail(id, body, options).then((request) => request(this.axios, this.basePath));
+    public updateEmail(id: number, updateEmailDto: UpdateEmailDto, options?: AxiosRequestConfig) {
+        return EmailsControllerApiFp(this.configuration).updateEmail(id, updateEmailDto, options).then((request) => request(this.axios, this.basePath));
     }
 }
 
