@@ -1,34 +1,35 @@
 package com.github.burkov.kara.openapi.ksp.schema
 
-import com.github.burkov.kara.openapi.ksp.kspBuiltIns
 import com.github.burkov.kara.openapi.ksp.kspLogger
 import com.github.burkov.kara.openapi.ksp.schema.SchemaGenerator.isListLike
 import com.github.burkov.kara.openapi.ksp.schema.SchemaGenerator.isMapLike
-import com.github.burkov.kara.openapi.ksp.schema.SchemaGenerator.isUnitType
-import com.google.devtools.ksp.processing.KSBuiltIns
+import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSType
-import com.google.devtools.ksp.symbol.KSValueParameter
 import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.media.Schema
-import kotlin.reflect.KClass
-import kotlin.reflect.KType
 
 class SchemaMapper {
     private val resolvedTypes = mutableMapOf<String, KSType>()
 
-    private fun resolvedRef(type: KSType): String {
-        val name = type.declaration.simpleName.asString()
-        if (resolvedTypes[name] != null && resolvedTypes[name] != type) {
-            error("Name clash detected: '$name' is already taken by '${resolvedTypes[name]!!.declaration.simpleName.getShortName()}'")
-        } else resolvedTypes[name] = type
-        return name
+    private fun resolvedTypeName(type: KSType): String {
+        return type.declaration.simpleName.asString()
     }
 
-    fun parameterValueSchema(routeParameter: KSValueParameter): Schema<Any> {
-        val type = routeParameter.type.resolve().declaration.qualifiedName!!.asString()
+    private fun resolvedRef(type: KSType): String {
+        val name = resolvedTypeName(type)
+        val previouslyResolved = resolvedTypes[name]
+        return when {
+            previouslyResolved == null -> name.also { resolvedTypes[name] = type }
+            previouslyResolved != type -> error("Name clash detected: '$name' is already taken by '${previouslyResolved}'")
+            else -> name
+        }
+    }
+
+    fun primitiveTypeSchema(type: KSType): Schema<Any>? {
+        val typeName = type.declaration.qualifiedName!!.asString()
         val schema = Schema<Any>()
-        when (type) {
+        when (typeName) {
             "kotlin.Int" -> {
                 schema.addType("integer")
                 schema.format = "int32"
@@ -47,7 +48,7 @@ class SchemaMapper {
             }
             "kotlin.Boolean" -> schema.addType("boolean")
             "kotlin.String" -> schema.addType("string")
-            else -> error("Unsupported type: '$type'")
+            else -> return null
         }
         return schema
     }
@@ -71,10 +72,27 @@ class SchemaMapper {
 
     fun addSchemas(openapi: OpenAPI) {
         openapi.components = Components()
-        resolvedTypes.forEach { (name, kType) ->
-            val schema = Schema<Any>()
-            schema.addType("object")
+        resolvedTypes.forEach { (name, type) ->
+            val schema = resolveSchema(type)
             openapi.components.addSchemas(name, schema)
         }
+    }
+
+    private fun resolveSchema(type: KSType): Schema<Any> {
+        require(type.declaration is KSClassDeclaration) { "Trying to resolve schema for a non-class type: $type" }
+        val decl = type.declaration as KSClassDeclaration
+        val schema = Schema<Any>()
+        schema.addType("object")
+        decl.getAllProperties().forEach {
+            val propertyName = it.simpleName.getShortName()
+            val propertyType = it.type.resolve()
+            val propertySchema = primitiveTypeSchema(propertyType)
+            require(propertySchema !== null) { "Implement me: nested data classes are not supported yet" }
+            schema.addProperty(propertyName, propertySchema)
+        }
+        schema.required = decl.getAllProperties().mapNotNull { property ->
+            property.takeIf { !property.type.resolve().isMarkedNullable }?.simpleName?.getShortName()
+        }.toList()
+        return schema
     }
 }

@@ -14,7 +14,6 @@ import io.swagger.v3.oas.models.parameters.Parameter
 import io.swagger.v3.oas.models.parameters.RequestBody
 import io.swagger.v3.oas.models.responses.ApiResponse
 import io.swagger.v3.oas.models.responses.ApiResponses
-import kotlin.reflect.KClass
 import kotlin.reflect.KType
 import kotlin.reflect.full.isSubclassOf
 
@@ -65,10 +64,12 @@ class OpenApiBuilder(private val title: String) {
         routeParams.forEach { routeParameter ->
             requireNotNull(routeParameter.name) { "Nameless route parameter $routeParameter" }
             val parameter = Parameter()
+            val paramSchema = schemaMapper.primitiveTypeSchema(routeParameter.type.resolve())
+            requireNotNull(paramSchema) { "failed to detect schema for type $routeParameter" }
             parameter.`in` = "path"
             parameter.required = true
             parameter.name = routeParameter.name!!.getShortName()
-            parameter.schema = schemaMapper.parameterValueSchema(routeParameter)
+            parameter.schema = paramSchema
             operation.addParametersItem(parameter)
         }
     }
@@ -76,10 +77,12 @@ class OpenApiBuilder(private val title: String) {
     fun setQueryParameters(operation: Operation, queryParams: List<KSValueParameter>) {
         queryParams.forEach { queryParameter ->
             val parameter = Parameter()
+            val paramSchema = schemaMapper.primitiveTypeSchema(queryParameter.type.resolve())
+            requireNotNull(paramSchema) { "failed to detect schema for type $queryParameter" }
             parameter.`in` = "query"
             parameter.required = !queryParameter.type.resolve().isMarkedNullable
             parameter.name = queryParameter.name!!.getShortName()
-            parameter.schema = schemaMapper.parameterValueSchema(queryParameter)
+            parameter.schema = paramSchema
             operation.addParametersItem(parameter)
         }
     }

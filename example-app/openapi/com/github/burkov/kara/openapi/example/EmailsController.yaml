@@ -90,7 +90,24 @@ components:
   schemas:
     EmailDto:
       type: object
+      properties:
+        id:
+          type: integer
+          format: int32
+        email:
+          type: string
+      required:
+      - email
+      - id
     CreateEmailDto:
       type: object
+      properties:
+        email:
+          type: string
+      required:
+      - email
     UpdateEmailDto:
       type: object
+      properties:
+        email:
+          type: string
